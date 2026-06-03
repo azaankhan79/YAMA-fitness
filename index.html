@@ -1,0 +1,502 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fitness with YHAN</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+.gold {
+background:gold;
+color:black;
+padding:10px;
+border:none;
+border-radius: 10px;
+font-weight: bold;
+cursor: pointer;
+}
+body{
+  margin:0;
+  font-family:Arial;
+  background:#000;
+  color:white;
+}
+
+nav{
+  position:fixed;
+  top:0;
+  width:100%;
+  background:#111;
+  display:flex;
+  justify-content:center;
+  padding:12px;
+  border-bottom:2px solid gold;
+}
+
+nav a{
+  color:white;
+  margin:0 10px;
+  text-decoration:none;
+  padding:6px 10px;
+  background:rgba(255,255,255,0.05);
+  border-radius:6px;
+}
+
+section{
+  padding:90px 20px;
+  max-width:1100px;
+  margin:auto;
+}
+
+h1{color:gold;}
+
+.container{
+  display:flex;
+  gap:20px;
+  flex-wrap:wrap;
+}
+
+.side{
+  flex:1;
+  min-width:260px;
+}
+
+.side img{
+  width:100%;
+  height:260px;
+  object-fit:cover;
+  border-radius:12px;
+}
+
+.card{
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,215,0,0.2);
+  padding:15px;
+  border-radius:12px;
+  margin:10px 0;
+}
+
+.exercise{
+  background:rgba(255,255,255,0.05);
+  padding:10px;
+  border-radius:10px;
+  margin:10px 0;
+}
+
+.exercise img{
+  width:100%;
+  height:180px;
+  object-fit:cover;
+  border-radius:10px;
+}
+
+button{
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:bold;
+  margin-top:5px;
+}
+
+.gold{background:gold;color:black;}
+.dark{background:rgba(255,255,255,0.1);color:white;}
+
+.activeBtn{
+  background:gold !important;
+  color:black !important;
+}
+
+.hidden{display:none;}
+
+.badgeBtn{
+  width:100%;
+  padding:10px;
+  margin:5px 0;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,0.15);
+  background:rgba(255,255,255,0.05);
+  color:white;
+  cursor:pointer;
+  transition:0.2s;
+  font-weight:bold;
+}
+
+</style>
+</head>
+
+<body>
+
+<nav>
+  <a href="#workout">Workout</a>
+  <a href="#bmi">BMI</a>
+  <a href="#why">Why Fitness</a>
+</nav>
+
+<section>
+
+<div class="container">
+
+<!-- SIDE -->
+<div class="side">
+
+  <img id="mainImg" src="https://images.pexels.com/photos/841130/pexels-photo-841130.jpeg">
+
+  <div class="card">
+    <h3>Gender</h3>
+    <button id="maleBtn" class="dark" onclick="setGender('male')">Male</button>
+    <button id="femaleBtn" class="dark" onclick="setGender('female')">Female</button>
+  </div>
+
+  <div class="card">
+    <button class="dark" onclick="toggle()">Toggle Workouts</button>
+    <select id="type">
+        <option value="beginner">beginner</option>
+        <option value="fat">Fat-loss</option>
+        <option value="muscle">muscle</option>
+    </select>
+    <button class="gold" onclick="generate()">Generate Workout</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<h1>Fitness with YAMA</h1>
+
+<div class="card">
+XP: <span id="xp">0</span> |
+Level: <span id="level">1</span> |
+KCAL: <span id="kcal">0</span>
+</div>
+
+<div class="card">
+<canvas id="xpChart"></canvas>
+</div>
+
+<div class="card">
+<canvas id="kcalChart"></canvas>
+</div>
+
+<div id="workouts"></div>
+
+<!-- BMI -->
+<div class="card">
+<h3>BMI Calculator</h3>
+
+<input id="height" placeholder="Height cm" type="number" style="width:45%;padding:8px;">
+<input id="weight" placeholder="Weight kg" type="number" style="width:45%;padding:8px;">
+
+<button class="gold" onclick="calcBMI()">Calculate BMI</button>
+
+<p id="bmiResult">BMI: -</p>
+</div>
+
+<div class="card">
+<canvas id="bmiChart"></canvas>
+</div>
+
+</div>
+</div>
+
+</section>
+
+<section id="why">
+<h1>Why Fitness is Important</h1>
+<div class="card">
+Fitness is important because it strengthens the body, improves mental health, and supports a healthier lifestyle. Regular physical activity keeps the heart strong, increases muscle and bone strength, and helps maintain a healthy weight. These benefits reduce the risk of diseases such as diabetes, heart disease, and obesity, allowing people to live longer 
+and healthier lives. Fitness also plays a major role in m
+ental well‑being. Exercise releases chemic
+als in the brain that reduce stress, improve 
+mood, and increase focus, making it easier to handle 
+daily challenges. In addition, staying active builds discipline, 
+confidence, and a sense of achievement, which positively affects a
+person’s self‑esteem. Overall, fitness is not just about looking good;
+it is about creating a balanced life where the body and mind work
+together. By making fitness a regular habit, anyone can improve
+their health, boost their energy, and build a stronger future.
+
+In this website you can chose you difficulty and gender to exersize it will automatically give you an 
+estimate of how much Kcal you burned and it will also calculate your BMI by puting height in cm ans weight in <keygen>
+<br>
+DEVELOPED BY: Azaan Khan & Yahya bin Osama
+PLANNED BY: Mohamed mahmoud al Nassar, Mohamed al amine
+</div>
+</section>
+
+
+<script>
+
+let xp=0,kcal=0;
+let gender="";
+
+let xpData=[],kcalData=[],bmiData=[];
+
+let xpChart,kcalChart,bmiChart;
+
+/* STRICT GENDER IMAGES (NO MIX POSSIBLE) */
+const maleImgs=[
+"https://images.pexels.com/photos/841130/pexels-photo-841130.jpeg",
+"https://images.pexels.com/photos/416778/pexels-photo-416778.jpeg",
+"https://images.pexels.com/photos/1552249/pexels-photo-1552249.jpeg"
+];
+
+const femaleImgs=[
+"https://images.pexels.com/photos/416809/pexels-photo-416809.jpeg",
+"https://images.pexels.com/photos/3757374/pexels-photo-3757374.jpeg",
+"https://images.pexels.com/photos/414029/pexels-photo-414029.jpeg"
+];
+
+/* WORKOUT DATA */
+const data = {
+  beginner: [
+    {n:"Push Ups",d:"Chest + arms",yt:"https://www.youtube.com/watch?v=_l3ySVKYVJ8"},
+    {n:"Squats",d:"Leg strength",yt:"https://www.youtube.com/watch?v=aclHkVaku9U"},
+    {n:"Jumping Jacks",d:"Cardio",yt:"https://www.youtube.com/watch?v=c4DAnQ6DtF8"},
+    {n:"Plank",d:"Core stability",yt:"https://www.youtube.com/watch?v=pSHjTRCQxIw"},
+    {n:"Lunges",d:"Leg balance",yt:"https://www.youtube.com/watch?v=QOVaHwm-Q6U"},
+    {n:"High Knees",d:"Fat burn warmup",yt:"https://www.youtube.com/watch?v=OAJ_J3EZkdY"},
+    {n:"Wall Sit",d:"Leg endurance",yt:"https://www.youtube.com/watch?v=y-wV4Venusw"},
+    {n:"Arm Circles",d:"Shoulder warmup",yt:"https://www.youtube.com/watch?v=8n6m6s4yV2k"}
+  ],
+
+  muscle: [
+    {n:"Bench Press",d:"Chest power",yt:"https://www.youtube.com/watch?v=rT7DgCr-3pg"},
+    {n:"Deadlift",d:"Full body strength",yt:"https://www.youtube.com/watch?v=op9kVnSso6Q"},
+    {n:"Bicep Curls",d:"Arm growth",yt:"https://www.youtube.com/watch?v=ykJmrZ5v0Oo"},
+    {n:"Shoulder Press",d:"Shoulder strength",yt:"https://www.youtube.com/watch?v=B-aVuyhvLHU"},
+    {n:"Pull Ups",d:"Back strength",yt:"https://www.youtube.com/watch?v=eGo4IYlbE5g"},
+    {n:"Incline Press",d:"Upper chest",yt:"https://www.youtube.com/watch?v=8iPEnn-ltC8"},
+    {n:"Tricep Dips",d:"Arm definition",yt:"https://www.youtube.com/watch?v=6kALZikXxLc"},
+    {n:"Rows",d:"Back thickness",yt:"https://www.youtube.com/watch?v=GZbfZ033f74"}
+  ],
+
+  fat: [
+    {n:"Burpees",d:"Full fat burn",yt:"https://www.youtube.com/watch?v=TU8QYVW0gDU"},
+    {n:"Mountain Climbers",d:"Core cardio",yt:"https://www.youtube.com/watch?v=nmwgirgXLYM"},
+    {n:"High Knees",d:"Fat loss speed",yt:"https://www.youtube.com/watch?v=8opcQdC-V-U"},
+    {n:"Jump Rope",d:"Calorie burn",yt:"https://www.youtube.com/watch?v=1BZM1K7p7C8"},
+    {n:"Jogging",d:"Endurance cardio",yt:"https://www.youtube.com/watch?v=5UmbY9d8FzE"},
+    {n:"Shadow Boxing",d:"Fat burn + speed",yt:"https://www.youtube.com/watch?v=2K1r3W1lQ9Q"},
+    {n:"Step Ups",d:"Leg burn",yt:"https://www.youtube.com/watch?v=9ZQy9L2K0yM"},
+    {n:"Side Shuffles",d:"Agility cardio",yt:"https://www.youtube.com/watch?v=0X7d6pQwX2g"}
+  ]
+};
+
+/* GENDER */
+function setGender(g){
+  gender=g;
+
+  document.getElementById("maleBtn").classList.remove("activeBtn");
+  document.getElementById("femaleBtn").classList.remove("activeBtn");
+
+  if(g==="male"){
+    document.getElementById("maleBtn").classList.add("activeBtn");
+    document.getElementById("mainImg").src=maleImgs[0];
+  } else {
+    document.getElementById("femaleBtn").classList.add("activeBtn");
+    document.getElementById("mainImg").src=femaleImgs[0];
+  }
+
+  document.getElementById("workouts").innerHTML="";
+}
+
+/* TOGGLE */
+function toggle(){
+  document.getElementById("workouts").classList.toggle("hidden");
+}
+
+/* XP */
+function addXP(){
+  xp+=10;
+  kcal+=50;
+
+  xpData.push(xp);
+  kcalData.push(kcal);
+
+  update();
+  draw();
+}
+
+function update(){
+  document.getElementById("xp").innerText=xp;
+  document.getElementById("kcal").innerText=kcal;
+  document.getElementById("level").innerText=Math.floor(xp/50)+1;
+}
+
+/* GRAPHS */
+function draw(){
+
+  if(xpChart) xpChart.destroy();
+  if(kcalChart) kcalChart.destroy();
+
+  xpChart = new Chart(document.getElementById("xpChart"), {
+    type: "line",
+    data: {
+      labels: xpData.map((_, i) => i + 1),
+      datasets: [{
+        data: xpData,
+        borderColor: "#FFD700",
+        backgroundColor: "rgba(255,215,0,0.1)",
+        pointBackgroundColor: "#FFD700",
+        tension: 0.3
+      }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: "white" } },
+        y: { ticks: { color: "white" } }
+      }
+    }
+  });
+
+  kcalChart = new Chart(document.getElementById("kcalChart"), {
+    type: "line",
+    data: {
+      labels: kcalData.map((_, i) => i + 1),
+      datasets: [{
+        data: kcalData,
+        borderColor: "#00ff66",
+        backgroundColor: "rgba(0,255,102,0.1)",
+        pointBackgroundColor: "#00ff66",
+        tension: 0.3
+      }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: "white" } },
+        y: { ticks: { color: "white" } }
+      }
+    }
+  });
+
+}
+
+/* BMI FIX */
+function calcBMI(){
+
+  let h = Number(document.getElementById("height").value);
+  let w = Number(document.getElementById("weight").value);
+
+  // safety check
+  if(!h || !w || h <= 0 || w <= 0){
+    document.getElementById("bmiResult").innerText = "BMI: Enter valid values";
+    return;
+  }
+
+  let meters = h / 100;
+  let bmi = w / (meters * meters);
+
+  if(!isFinite(bmi)){
+    document.getElementById("bmiResult").innerText = "BMI: Error";
+    return;
+  }
+
+  bmi = Number(bmi.toFixed(1));
+
+  let status = "";
+
+  if(bmi < 18.5) status = "Underweight";
+  else if(bmi < 25) status = "Normal";
+  else if(bmi < 30) status = "Overweight";
+  else status = "Obese";
+
+  // store safely
+  bmiData.push(bmi);
+
+  // update text
+  document.getElementById("bmiResult").innerText =
+    "BMI: " + bmi + " (" + status + ")";
+
+  // update graph
+  renderBMIChart();
+}
+function renderBMIChart(){
+
+  if(bmiChart) bmiChart.destroy();
+
+  const ctx = document.getElementById("bmiChart");
+
+  bmiChart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: bmiData.map((_, i) => "Entry " + (i + 1)),
+      datasets: [{
+        label: "BMI Trend",
+        data: bmiData,
+        borderColor: "#ff3b3b",
+        backgroundColor: "rgba(255,59,59,0.15)",
+        pointBackgroundColor: "#ff3b3b",
+        pointRadius: 4,
+        tension: 0.35
+      }]
+    },
+    options: {
+      responsive: true,
+      animation: false,
+      plugins: {
+        legend: {
+          labels: { color: "white" }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: "white" },
+          grid: { color: "rgba(255,255,255,0.1)" }
+        },
+        y: {
+          ticks: { color: "white" },
+          grid: { color: "rgba(255,255,255,0.1)" }
+        }
+      }
+    }
+  });
+}
+renderBMIChart();
+/* GENERATE (FIXED + RESTORED) */
+function generate(){
+
+  if(!gender) return alert("Select gender");
+
+  let type=document.getElementById("type")?.value || "beginner";
+  let box=document.getElementById("workouts");
+  box.innerHTML="";
+
+  let pool = gender==="male"?maleImgs:femaleImgs;
+
+  data[type].forEach((ex,i)=>{
+
+    let div=document.createElement("div");
+    div.className="exercise";
+
+    div.innerHTML=`
+      <h3>${ex.n}</h3>
+      <img src="${pool[i % pool.length]}">
+      <p>${ex.d}</p>
+    `;
+
+    let t=document.createElement("button");
+    t.className="dark";
+    t.innerText="Tutorial";
+    t.onclick=()=>window.open(ex.yt,"_blank");
+
+    let b=document.createElement("button");
+    b.className="gold";
+    b.innerText="+10 XP";
+    b.onclick=addXP;
+
+    div.appendChild(t);
+    div.appendChild(b);
+
+    box.appendChild(div);
+  });
+}
+
+</script>
+
+</body>
+</html>
